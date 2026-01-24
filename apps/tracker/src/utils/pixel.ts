@@ -1,0 +1,4 @@
+export const pixelBuffer = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAusB9YpX6FoAAAAASUVORK5CYII=',
+  'base64',
+)
