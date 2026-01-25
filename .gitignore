@@ -3,3 +3,4 @@ apps/tracker/node_modules/
 packages/db/node_modules/
 
 apps/web/node_modules/
+.env
