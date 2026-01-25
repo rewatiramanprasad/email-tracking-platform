@@ -24,7 +24,6 @@ import { useRouter } from 'next/navigation'
 
 export const emailFormSchema = z.object({
   to: z.email('Invalid recipient email'),
-  from: z.email('Invalid sender email'),
   subject: z.string().min(1, 'Subject is required'),
   body: z.string().min(1, 'Message is required'),
 })
@@ -37,7 +36,6 @@ export default function EmailForm() {
     resolver: zodResolver(emailFormSchema),
     defaultValues: {
       to: '',
-      from: '',
       subject: '',
       body: '',
     },
@@ -77,20 +75,6 @@ export default function EmailForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>To</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="from"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>From</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
