@@ -1,8 +1,10 @@
 
 import { db } from '@/lib/db'
+import { unstable_noStore as noStore } from 'next/cache'
 
 
 export async function getNotTracked() {
+    noStore()
   const res = await db.query(`
     SELECT COUNT(*) AS count
     FROM emails
