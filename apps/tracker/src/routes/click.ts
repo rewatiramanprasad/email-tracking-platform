@@ -11,5 +11,5 @@ export const clickRoute = async (req: Request, res: Response) => {
     )
   }
 
-  res.redirect(url as string)
+  return res.redirect(302, url as string)
 }
