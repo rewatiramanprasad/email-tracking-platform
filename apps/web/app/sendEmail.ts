@@ -6,7 +6,6 @@ import crypto from 'crypto'
 
 type SendEmailInput = {
   to: string
-  from: string
   subject: string
   body: string
 }
@@ -26,7 +25,6 @@ export async function sendEmail(data: SendEmailInput) {
     console.log(data)
 
     await transporter.sendMail({
-      from: data.from,
       to: data.to,
       subject: data.subject,
       html: `
