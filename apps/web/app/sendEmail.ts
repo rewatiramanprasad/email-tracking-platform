@@ -32,9 +32,9 @@ export async function sendEmail(data: SendEmailInput) {
       html: `
       <p>${data.body}</p>
 
-<a href="${process.env.TRACKER_URL}/click?emailId=${emailId}&url=https://google.com">
-  View Details
-</a>
+    <a href="${process.env.TRACKER_URL}/click?emailId=${emailId}&url=https://google.com">
+    View Details
+    </a>
 
       <img
         src="${process.env.TRACKER_URL}/open?emailId=${emailId}"
@@ -45,7 +45,7 @@ export async function sendEmail(data: SendEmailInput) {
     `,
     })
 
-    db.query(
+    await db.query(
       `
       INSERT INTO emails (id,to_email, subject ,open_count, sent_at)
       VALUES ($1, $2, $3, 0, NOW())
