@@ -1,114 +1,145 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { Send, RotateCcw } from 'lucide-react'
-import { sendEmail } from './sendEmail'
-import { Input } from '../components/Input'
-import { Textarea } from '../components/Textarea'
+import { LoaderCircle, ReplaceIcon, Send } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 
-type FormData = {
-  to: string
-  from: string
-  subject: string
-  body: string
-}
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+
+import { sendEmail } from '../app/sendEmail'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+
+export const emailFormSchema = z.object({
+  to: z.email('Invalid recipient email'),
+  from: z.email('Invalid sender email'),
+  subject: z.string().min(1, 'Subject is required'),
+  body: z.string().min(1, 'Message is required'),
+})
+
+export type EmailFormValues = z.infer<typeof emailFormSchema>
 
 export default function EmailForm() {
-  const [formData, setFormData] = useState<FormData>({
-    to: '',
-    from: '',
-    subject: '',
-    body: '',
-  })
-
-  const [isPending, startTransition] = useTransition()
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleReset = () => {
-    setFormData({
+  const router=useRouter()
+  const form = useForm<EmailFormValues>({
+    resolver: zodResolver(emailFormSchema),
+    defaultValues: {
       to: '',
       from: '',
       subject: '',
       body: '',
-    })
-  }
+    },
+  })
 
-  const handleSend = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    startTransition(async () => {
-      try {
-        await sendEmail(formData)
-        alert('Email sent successfully')
-        handleReset()
-      } catch (err) {
-        console.error(err)
-        alert('Failed to send email')
-      }
-    })
+  const onSubmit = async (values: EmailFormValues) => {
+    try {
+      await sendEmail(values)
+      toast.success('Email sent', {
+        description: 'Your email was delivered successfully.',
+      })
+      form.reset()
+      router.push('/dashboard')
+    } catch (error) {
+      toast.error('Failed to send email', {
+        description: 'Please check your email settings and try again.',
+      })
+    }
   }
 
   return (
-    <form
-      onSubmit={handleSend}
-      className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-6"
-    >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl p-8">
-        <h2 className="text-3xl  text-black font-bold mb-6">Compose Email</h2>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        onReset={() => form.reset()}
+        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 p-6"
+      >
+        <Card className="w-full max-w-3xl">
+          <CardHeader>
+            <CardTitle className="text-3xl">Compose Email</CardTitle>
+          </CardHeader>
 
-        <div className="space-y-6">
-          <Input
-            label="To"
-            name="to"
-            value={formData.to}
-            onChange={handleChange}
-          />
-          <Input
-            label="From"
-            name="from"
-            value={formData.from}
-            onChange={handleChange}
-          />
-          <Input
-            label="Subject"
-            name="subject"
-            value={formData.subject}
-            onChange={handleChange}
-          />
-          <Textarea
-            label="Message"
-            name="body"
-            value={formData.body}
-            onChange={handleChange}
-          />
+          <CardContent className="space-y-6">
+            <FormField
+              control={form.control}
+              name="to"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>To</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <div className="flex gap-4 pt-4">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 text-black bg-gray-100 rounded-lg"
-            >
-              <RotateCcw className="w-5 h-5" />
-              Reset
-            </button>
+            <FormField
+              control={form.control}
+              name="from"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>From</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <button
-              type="submit"
-              disabled={isPending}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 text-white bg-blue-600 rounded-lg"
-            >
-              <Send className="w-5 h-5" />
-              {isPending ? 'Sending...' : 'Send Email'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </form>
+            <FormField
+              control={form.control}
+              name="subject"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subject</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="body"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Message</FormLabel>
+                  <FormControl>
+                    <Textarea className="h-50" rows={10} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className=" flex flex-row gap-5">
+              <Button type="submit" className="w-1/2">
+                <Send className="mr-2 h-4 w-4" />
+                Send Email
+              </Button>
+              <Button type="reset" className="w-1/2">
+                <LoaderCircle className="mr-2 h-4 w-4" />
+                Reset
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </form>
+    </Form>
   )
 }

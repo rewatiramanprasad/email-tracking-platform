@@ -1,5 +1,6 @@
 'use server'
 
+import { db } from '@/lib/db'
 import nodemailer from 'nodemailer'
 
 type SendEmailInput = {
@@ -10,21 +11,23 @@ type SendEmailInput = {
 }
 
 export async function sendEmail(data: SendEmailInput) {
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  })
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    })
+    console.log(data)
 
-  await transporter.sendMail({
-    from: data.from,
-    to: data.to,
-    subject: data.subject,
-    html: `
+    await transporter.sendMail({
+      from: data.from,
+      to: data.to,
+      subject: data.subject,
+      html: `
       <p>${data.body}</p>
 
       <img
@@ -34,5 +37,17 @@ export async function sendEmail(data: SendEmailInput) {
         style="display:none"
       />
     `,
-  })
+    })
+
+    db.query(
+      `
+      INSERT INTO emails (to_email, subject ,open_count, sent_at)
+      VALUES ($1, $2, 0, NOW())
+    `,
+      [data.to, data.subject],
+    )
+  } catch (error) {
+    console.error('Error sending email:', error)
+    throw new Error('Failed to send email. Please try again.')
+  }
 }
