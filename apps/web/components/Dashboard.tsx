@@ -153,7 +153,6 @@ const filteredEmails = emails.filter((email) => {
               <div className="text-3xl font-bold text-gray-900 mb-2">
                 {stat.value}
               </div>
-              
             </div>
           ))}
         </div>
@@ -205,7 +204,7 @@ const filteredEmails = emails.filter((email) => {
                     Platform / Device
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                     IP
+                    IP
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Recipient
@@ -229,7 +228,7 @@ const filteredEmails = emails.filter((email) => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <div
-                          className={`w-2 h-2 rounded-full bg-green-600`}
+                          className={`w-2 h-2 rounded-full${track.event_types === null ? ' bg-red-600' : ' bg-green-600'}`}
                         ></div>
                         <span className={`text-sm font-medium `}>
                           {track.event_types}
@@ -238,11 +237,13 @@ const filteredEmails = emails.filter((email) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {track.user_agent.slice(0, 20)}...
+                        {track.user_agent
+                          ? `${track.user_agent.slice(0, 20)}...`
+                          : '—'}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">{track.ip}</div>
+                      <div className="text-sm text-gray-900">{track.ip? track.ip : '—'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
