@@ -4,8 +4,10 @@ import { pixelBuffer } from '../utils/pixel'
 
 export const openRoute = async (req: Request, res: Response) => {
   const emailId = req.query.emailId as string
+  console.log('Open event for emailId:', emailId)
 
   if (emailId) {
+  
     await logOpen({
       emailId,
       ip: req.ip,
